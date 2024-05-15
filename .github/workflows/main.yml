@@ -1,0 +1,36 @@
+name: Create Ubuntu container and expose SSH port with Ngrok
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Build Docker image
+        run: docker buildx build --platform linux/amd64 -t ubuntu-ssh .
+
+      - name: Start Ngrok
+        run: |
+          wget -q -O ngrok.zip https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
+          unzip ngrok.zip
+          ./ngrok tcp 22 > /dev/null &
+
+      - name: Wait for Ngrok tunnel
+        run: sleep 5
+
+      - name: Get Ngrok URL
+        id: ngrok
+        run: echo "::set-output name=url::$(curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url')"
+
+      - name: SSH into Ubuntu container
+        run: ssh -o "StrictHostKeyChecking=no" -p ${{ env.SSH_PORT }} root@${{ steps.ngrok.outputs.url }}
