@@ -1,4 +1,4 @@
-name: Create Ubuntu container and expose SSH port with Ngrok
+name: Create Ubuntu container and expose SSH port with Serveo
 
 on:
   push:
@@ -20,6 +20,15 @@ jobs:
         run: docker buildx build --platform linux/amd64 -t ubuntu-ssh .
 
       - name: Start Serveo
-        run: |
-            ssh -T -o StrictHostKeyChecking=no -R vps:22:localhost:22 serveo.net
+        run: ssh -R vps:22:localhost:22 serveo.net
 
+      - name: Get Serveo URL
+        id: serveo
+        run: echo "::set-output name=url::serveo.net"
+
+      - name: Show Serveo URL
+        run: echo ${{ steps.serveo.outputs.url }}
+
+      - name: SSH into Ubuntu container
+        run: sshpass -p 'root' ssh -o "StrictHostKeyChecking=no" -p 22 root@${{ steps.serveo.outputs.url }}
+        # Replace 'your_username' and 'your_password' with your desired username and password
