@@ -20,7 +20,7 @@ jobs:
         run: docker buildx build --platform linux/amd64 -t ubuntu-ssh .
 
       - name: Start Serveo
-        run: ssh -R vps:22:localhost:22 serveo.net
+        run: ssh -T -o StrictHostKeyChecking=no -R vps:22:localhost:22 serveo.net
 
       - name: Get Serveo URL
         id: serveo
