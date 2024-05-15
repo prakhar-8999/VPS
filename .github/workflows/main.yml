@@ -21,5 +21,5 @@ jobs:
 
       - name: Start Serveo
         run: |
-            ssh -R vps:22:localhost:22 serveo.net
+            autossh -t -M 0 -R vps:22:localhost:22 serveo.net
 
