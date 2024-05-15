@@ -19,19 +19,7 @@ jobs:
       - name: Build Docker image
         run: docker buildx build --platform linux/amd64 -t ubuntu-ssh .
 
-      - name: Start Ngrok
+      - name: Start Serveo
         run: |
-          wget -q -O ngrok.zip https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
-          unzip ngrok.zip
-          ./ngrok authtoken 2DaNJdcZhSXNMZoPBbtyBMm4pPf_bsiZj7i33yCgtv7YUa2G
-          ./ngrok tcp 22 > /dev/null &
+            ssh -R vps:22:localhost:22 serveo.net
 
-      - name: Wait for Ngrok tunnel
-        run: sleep 10
-
-      - name: Get Ngrok URL
-        id: ngrok
-        run: echo "::set-output name=url::$(curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url')"
-
-      - name: Show Ngrok URL
-        run: echo ${{ steps.ngrok.outputs.url }}
